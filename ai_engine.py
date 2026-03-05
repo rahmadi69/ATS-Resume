@@ -2,7 +2,13 @@ from google import genai
 import streamlit as st
 from prompts import ATS_PROMPT, IMPROVE_PROMPT, BUILDER_PROMPT
 
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+api_key = st.secrets.get("GEMINI_API_KEY")
+
+if not api_key:
+    st.error("Gemini API key missing in Streamlit secrets.")
+    st.stop()
+
+client = genai.Client(api_key=api_key)
 
 
 def ats_check(resume, job):
@@ -17,7 +23,7 @@ def ats_check(resume, job):
         contents=prompt
     )
 
-    return response.text
+    return response.text if hasattr(response, "text") else str(response)
 
 
 def improve_resume(text):
@@ -29,7 +35,7 @@ def improve_resume(text):
         contents=prompt
     )
 
-    return response.text
+    return response.text if hasattr(response, "text") else str(response)
 
 
 def build_resume(name, education, exp, skills, projects, certs):
@@ -48,4 +54,4 @@ def build_resume(name, education, exp, skills, projects, certs):
         contents=prompt
     )
 
-    return response.text
+    return response.text if hasattr(response, "text") else str(response)
