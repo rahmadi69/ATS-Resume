@@ -2,6 +2,7 @@ import streamlit as st
 from resume_parser import parse_pdf, parse_docx
 from ai_engine import ats_check, improve_resume, build_resume
 from ui_components import header, tips
+from ats_scoring import calculate_ats_score
 
 st.set_page_config(page_title="ResumeAI", layout="wide")
 
@@ -56,12 +57,18 @@ with tab1:
 
             with st.spinner("Analyzing..."):
 
-                result = ats_check(
-                    resume_text,
-                    job_desc
-                )
+                score, missing = calculate_ats_score(resume_text, job_desc)
 
-                st.markdown(result)
+st.subheader(f"ATS Score: {score}%")
+
+if missing:
+    st.write("Missing Keywords:")
+    st.write(", ".join(missing))
+
+with st.spinner("Generating AI suggestions..."):
+    result = ats_check(resume_text, job_desc)
+
+st.markdown(result)
 
         else:
             st.warning("Upload or paste a resume first.")
