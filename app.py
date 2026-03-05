@@ -10,12 +10,61 @@ from resume_to_docx import markdown_to_docx
 
 st.set_page_config(page_title="ResumeAI", page_icon="📄", layout="wide")
 
+# ── Mobile-friendly CSS ──
+st.markdown("""
+<style>
+    /* Reduce side padding on mobile */
+    .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-top: 1rem !important;
+        max-width: 100% !important;
+    }
+    /* Bigger buttons on mobile */
+    .stButton > button {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+    }
+    /* Full width download buttons */
+    .stDownloadButton > button {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+    }
+    /* Stack columns on small screens */
+    @media (max-width: 640px) {
+        [data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+    }
+    /* Larger text inputs on mobile */
+    .stTextInput input, .stTextArea textarea {
+        font-size: 1rem !important;
+    }
+    /* Tab labels readable on mobile */
+    .stTabs [data-baseweb="tab"] {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ── Session state init ──
+for key in ["ats_result", "ats_resume_text", "career_fit_result",
+            "improved_result", "built_resume", "skill_suggestions",
+            "exp_bullets", "role_tips"]:
+    if key not in st.session_state:
+        st.session_state[key] = ""
+
 header()
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 ATS Checker",
-    "🏗️ Resume Builder",
-    "✏️ Resume Improver",
+    "🏗️ Builder",
+    "✏️ Improver",
     "💡 Tips"
 ])
 
@@ -26,7 +75,7 @@ with tab1:
     st.subheader("ATS Resume Checker")
 
     option = st.radio(
-        "How do you want to provide your resume?",
+        "Resume input method",
         ["Upload PDF", "Upload DOCX", "Paste Text"],
         horizontal=True
     )
@@ -37,119 +86,132 @@ with tab1:
         file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
         if file:
             resume_text = parse_pdf(file)
-            st.success("PDF parsed successfully.")
+            if not resume_text.strip():
+                st.error(
+                    "❌ Could not read text from this PDF. "
+                    "Please upload a valid text-based resume PDF "
+                    "(not a scanned image or photo)."
+                )
+                resume_text = ""
+            else:
+                st.success("✅ PDF parsed successfully.")
 
     elif option == "Upload DOCX":
         file = st.file_uploader("Upload your resume (DOCX)", type=["docx"])
         if file:
             resume_text = parse_docx(file)
-            st.success("DOCX parsed successfully.")
+            if not resume_text.strip():
+                st.error(
+                    "❌ Could not read text from this DOCX. "
+                    "Please upload a valid resume document."
+                )
+                resume_text = ""
+            else:
+                st.success("✅ DOCX parsed successfully.")
 
     else:
-        resume_text = st.text_area("Paste your resume here", height=300)
+        resume_text = st.text_area("Paste your resume here", height=280)
 
-    job_desc = st.text_area("Paste the Job Description here", height=200)
+    job_desc = st.text_area("Paste the Job Description here", height=180)
 
     if st.button("🔍 Analyze Resume", type="primary"):
         if not resume_text.strip():
-            st.warning("Please upload or paste your resume first.")
+            st.warning("⚠️ Please upload a valid resume or paste your resume text first.")
         elif not job_desc.strip():
-            st.warning("Please paste a job description to compare against.")
+            st.warning("⚠️ Please paste a job description to compare against.")
         else:
             with st.spinner("Analyzing with Groq AI..."):
-                result = ats_check(resume_text, job_desc)
-            if result:
-                st.markdown(result)
-                st.markdown("---")
-                st.markdown("### 🎯 Where Should You Apply?")
-                st.caption("Based on your resume, AI will suggest which roles you're best suited for.")
-                if st.button("🔎 Find Best Job Matches for Me"):
-                    with st.spinner("Analyzing your career fit..."):
-                        fit_result = career_fit(resume_text)
-                    if fit_result:
-                        st.markdown(fit_result)
+                st.session_state.ats_result = ats_check(resume_text, job_desc)
+                st.session_state.ats_resume_text = resume_text
+                st.session_state.career_fit_result = ""
+
+    if st.session_state.ats_result:
+        st.markdown(st.session_state.ats_result)
+        st.markdown("---")
+        st.markdown("### 🎯 Where Should You Apply?")
+        st.caption("AI will analyze your resume and suggest the best job roles for you.")
+
+        if st.button("🔎 Find Best Job Matches for Me"):
+            with st.spinner("Analyzing your career fit..."):
+                st.session_state.career_fit_result = career_fit(
+                    st.session_state.ats_resume_text
+                )
+
+    if st.session_state.career_fit_result:
+        st.markdown(st.session_state.career_fit_result)
 
 
 # ─────────────────────── RESUME BUILDER ─────────────────────── #
 
 with tab2:
     st.subheader("AI Resume Builder")
-    st.caption("Fill in your details — AI will write a professional ATS-optimized resume.")
+    st.caption("Fill in your details — AI writes a professional ATS-optimized resume.")
 
-    col1, col2 = st.columns(2)
+    name = st.text_input("Full Name")
+    education = st.text_area("Education (Degree, Institution, Year)", height=90)
+    certs = st.text_input("Certifications (e.g. AWS, Google, CompTIA)")
 
-    with col1:
-        name = st.text_input("Full Name")
-        certs = st.text_input("Certifications (e.g. AWS, Google, CompTIA)")
-
-    with col2:
-        education = st.text_area("Education (Degree, Institution, Year)", height=100)
-
-    # Skills with AI suggestion
-    skills = st.text_input("Skills (comma separated — type yours and get AI suggestions below)")
+    skills = st.text_input("Skills (comma separated)")
 
     if skills.strip():
         if st.button("💡 Suggest More Skills"):
             with st.spinner("Getting skill suggestions..."):
-                suggestions = suggest_skills(skills)
-            if suggestions:
-                st.info(f"**Suggested skills to add:** {suggestions}")
+                st.session_state.skill_suggestions = suggest_skills(skills)
 
-    # Experience with AI improvement
-    experience = st.text_area("Work Experience (job title, company, what you did)", height=150)
+    if st.session_state.skill_suggestions:
+        st.info(f"**Suggested skills to add:** {st.session_state.skill_suggestions}")
+
+    experience = st.text_area("Work Experience (job title, company, what you did)", height=130)
 
     if experience.strip():
         if st.button("✨ Improve Experience Bullets"):
-            with st.spinner("Rewriting experience with action verbs..."):
-                improved_exp = improve_experience_bullets(experience)
-            if improved_exp:
-                st.info("**AI-improved bullets (copy these into the box above):**")
-                st.code(improved_exp, language=None)
+            with st.spinner("Rewriting with action verbs..."):
+                st.session_state.exp_bullets = improve_experience_bullets(experience)
 
-    projects = st.text_area("Projects (name, tech stack, what it does)", height=120)
+    if st.session_state.exp_bullets:
+        st.info("**AI-improved bullets — copy these above:**")
+        st.code(st.session_state.exp_bullets, language=None)
+
+    projects = st.text_area("Projects (name, tech stack, what it does)", height=110)
 
     if st.button("🚀 Generate Resume", type="primary"):
         if not name.strip():
-            st.warning("Please enter your name.")
+            st.warning("⚠️ Please enter your full name.")
         else:
             with st.spinner("Groq AI is building your ATS resume..."):
-                resume_md = build_resume(
-                    name, education, experience,
-                    skills, projects, certs
+                st.session_state.built_resume = build_resume(
+                    name, education, experience, skills, projects, certs
                 )
-            if resume_md:
-                st.markdown("---")
-                st.markdown(resume_md)
 
-                # Generate DOCX
-                docx_bytes = markdown_to_docx(resume_md, name)
-                safe_name = name.strip().replace(" ", "_")
+    if st.session_state.built_resume:
+        st.markdown("---")
+        st.markdown(st.session_state.built_resume)
 
-                col_a, col_b = st.columns(2)
-                with col_a:
-                    st.download_button(
-                        "⬇️ Download as DOCX (Word)",
-                        data=docx_bytes,
-                        file_name=f"{safe_name}_resume.docx",
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    )
-                with col_b:
-                    st.download_button(
-                        "⬇️ Download as Markdown",
-                        data=resume_md,
-                        file_name=f"{safe_name}_resume.md",
-                        mime="text/markdown"
-                    )
+        docx_bytes = markdown_to_docx(st.session_state.built_resume, name)
+        safe_name = name.strip().replace(" ", "_") if name.strip() else "resume"
+
+        st.download_button(
+            "⬇️ Download as DOCX (Word)",
+            data=docx_bytes,
+            file_name=f"{safe_name}_resume.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+        st.download_button(
+            "⬇️ Download as Markdown",
+            data=st.session_state.built_resume,
+            file_name=f"{safe_name}_resume.md",
+            mime="text/markdown"
+        )
 
 
 # ─────────────────────── RESUME IMPROVER ─────────────────────── #
 
 with tab3:
     st.subheader("Resume Improver")
-    st.caption("Upload or paste your resume — Groq AI will rewrite it to be ATS optimized.")
+    st.caption("Upload or paste your resume — AI will rewrite it ATS optimized.")
 
     improve_option = st.radio(
-        "How do you want to provide your resume?",
+        "Resume input method",
         ["Upload PDF", "Upload DOCX", "Paste Text"],
         horizontal=True,
         key="improve_radio"
@@ -161,48 +223,59 @@ with tab3:
         imp_file = st.file_uploader("Upload resume PDF", type=["pdf"], key="imp_pdf")
         if imp_file:
             improve_text = parse_pdf(imp_file)
-            st.success("PDF parsed successfully.")
+            if not improve_text.strip():
+                st.error(
+                    "❌ Could not read text from this PDF. "
+                    "Please upload a valid text-based resume PDF "
+                    "(not a scanned image or photo)."
+                )
+                improve_text = ""
+            else:
+                st.success("✅ PDF parsed successfully.")
 
     elif improve_option == "Upload DOCX":
         imp_file = st.file_uploader("Upload resume DOCX", type=["docx"], key="imp_docx")
         if imp_file:
             improve_text = parse_docx(imp_file)
-            st.success("DOCX parsed successfully.")
+            if not improve_text.strip():
+                st.error(
+                    "❌ Could not read text from this DOCX. "
+                    "Please upload a valid resume document."
+                )
+                improve_text = ""
+            else:
+                st.success("✅ DOCX parsed successfully.")
 
     else:
-        improve_text = st.text_area("Paste your resume here", height=350, key="improve_text")
+        improve_text = st.text_area("Paste your resume here", height=320, key="improve_text")
 
     if st.button("✨ Improve Resume", type="primary"):
         if not improve_text.strip():
-            st.warning("Please upload or paste your resume first.")
+            st.warning("⚠️ Please upload a valid resume or paste your resume text first.")
         else:
             with st.spinner("Groq AI is improving your resume..."):
-                result = improve_resume(improve_text)
-            if result:
-                st.markdown("---")
-                st.markdown(result)
+                st.session_state.improved_result = improve_resume(improve_text)
 
-                # Extract name from first line for filename
-                first_line = improve_text.strip().split('\n')[0]
-                safe_name = first_line[:30].replace(" ", "_").replace("/", "")
+    if st.session_state.improved_result:
+        st.markdown("---")
+        st.markdown(st.session_state.improved_result)
 
-                docx_bytes = markdown_to_docx(result, safe_name)
+        first_line = improve_text.strip().split('\n')[0] if improve_text.strip() else "resume"
+        safe_name = first_line[:30].replace(" ", "_").replace("/", "")
+        docx_bytes = markdown_to_docx(st.session_state.improved_result, safe_name)
 
-                col_a, col_b = st.columns(2)
-                with col_a:
-                    st.download_button(
-                        "⬇️ Download Improved Resume (DOCX)",
-                        data=docx_bytes,
-                        file_name="improved_resume.docx",
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    )
-                with col_b:
-                    st.download_button(
-                        "⬇️ Download as Markdown",
-                        data=result,
-                        file_name="improved_resume.md",
-                        mime="text/markdown"
-                    )
+        st.download_button(
+            "⬇️ Download Improved Resume (DOCX)",
+            data=docx_bytes,
+            file_name="improved_resume.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+        st.download_button(
+            "⬇️ Download as Markdown",
+            data=st.session_state.improved_result,
+            file_name="improved_resume.md",
+            mime="text/markdown"
+        )
 
 
 # ─────────────────────── TIPS ─────────────────────── #
@@ -218,9 +291,10 @@ with tab4:
 
     if st.button("💡 Get AI Tips", type="primary"):
         if not role.strip():
-            st.warning("Enter a job title first.")
+            st.warning("⚠️ Please enter a job title first.")
         else:
             with st.spinner("Getting tips from Groq AI..."):
-                ai_tips = get_role_tips(role)
-            if ai_tips:
-                st.markdown(ai_tips)
+                st.session_state.role_tips = get_role_tips(role)
+
+    if st.session_state.role_tips:
+        st.markdown(st.session_state.role_tips)
