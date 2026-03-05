@@ -1,66 +1,51 @@
 import os
 import streamlit as st
-from google import genai
+from groq import Groq
 from prompts import ATS_PROMPT, IMPROVE_PROMPT, BUILDER_PROMPT, TIPS_PROMPT
 
 
-def get_api_key() -> str:
-    """Safely fetch API key from Streamlit secrets or environment."""
+def get_api_key():
     try:
-        key = st.secrets.get("GEMINI_API_KEY", None)
+        key = st.secrets.get("GROQ_API_KEY", None)
         if key:
             return key
     except Exception:
         pass
-    return os.getenv("GEMINI_API_KEY", "")
+    return os.getenv("GROQ_API_KEY", "")
 
 
-def get_client():
+def _call_groq(prompt: str) -> str:
     api_key = get_api_key()
     if not api_key:
-        st.error("⚠️ Gemini API key missing. Add GEMINI_API_KEY to Streamlit Secrets or .env file.")
-        st.info("Get a free key at: https://aistudio.google.com/app/apikey")
+        st.error("⚠️ Groq API key missing. Add GROQ_API_KEY to Streamlit Secrets.")
         st.stop()
-    return genai.Client(api_key=api_key)
-
-
-def _call_gemini(prompt: str) -> str:
-    """Single place for all Gemini API calls with error handling."""
-    client = get_client()
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
+        client = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=2048
         )
-        return response.text if hasattr(response, "text") else str(response)
+        return response.choices[0].message.content
     except Exception as e:
-        st.error(f"Gemini API error: {e}")
+        st.error(f"Groq API error: {e}")
         return ""
 
 
 def ats_check(resume: str, job: str) -> str:
-    prompt = ATS_PROMPT.format(resume=resume, job_description=job)
-    return _call_gemini(prompt)
+    return _call_groq(ATS_PROMPT.format(resume=resume, job_description=job))
 
 
 def improve_resume(text: str) -> str:
-    prompt = IMPROVE_PROMPT.format(resume=text)
-    return _call_gemini(prompt)
+    return _call_groq(IMPROVE_PROMPT.format(resume=text))
 
 
-def build_resume(name: str, education: str, exp: str,
-                 skills: str, projects: str, certs: str) -> str:
-    prompt = BUILDER_PROMPT.format(
-        name=name,
-        education=education,
-        experience=exp,
-        skills=skills,
-        projects=projects,
-        certs=certs
-    )
-    return _call_gemini(prompt)
+def build_resume(name, education, exp, skills, projects, certs) -> str:
+    return _call_groq(BUILDER_PROMPT.format(
+        name=name, education=education, experience=exp,
+        skills=skills, projects=projects, certs=certs
+    ))
 
 
 def get_role_tips(role: str) -> str:
-    prompt = TIPS_PROMPT.format(role=role)
-    return _call_gemini(prompt)
+    return _call_groq(TIPS_PROMPT.format(role=role))
