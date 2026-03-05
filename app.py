@@ -1,140 +1,151 @@
 import streamlit as st
 from resume_parser import parse_pdf, parse_docx
-from ai_engine import ats_check, improve_resume, build_resume
+from ai_engine import ats_check, improve_resume, build_resume, get_role_tips
 from ui_components import header, tips
 from ats_scoring import calculate_ats_score
 
-st.set_page_config(page_title="ResumeAI", layout="wide")
+st.set_page_config(page_title="ResumeAI", page_icon="📄", layout="wide")
 
 header()
 
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["ATS Checker", "Resume Builder", "Resume Improver", "Tips"]
-)
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📊 ATS Checker",
+    "🏗️ Resume Builder",
+    "✏️ Resume Improver",
+    "💡 Tips"
+])
 
-# ---------------- ATS CHECKER ---------------- #
+
+# ─────────────────────── ATS CHECKER ─────────────────────── #
 
 with tab1:
-
-    st.subheader("Upload or Paste Resume")
+    st.subheader("ATS Resume Checker")
 
     option = st.radio(
-        "Resume Input",
-        ["Upload PDF", "Upload DOCX", "Paste Text"]
+        "How do you want to provide your resume?",
+        ["Upload PDF", "Upload DOCX", "Paste Text"],
+        horizontal=True
     )
 
     resume_text = ""
 
     if option == "Upload PDF":
-
-        file = st.file_uploader("Upload PDF", type=["pdf"])
-
+        file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
         if file:
             resume_text = parse_pdf(file)
+            st.success("PDF parsed successfully.")
 
     elif option == "Upload DOCX":
-
-        file = st.file_uploader("Upload DOCX", type=["docx"])
-
+        file = st.file_uploader("Upload your resume (DOCX)", type=["docx"])
         if file:
             resume_text = parse_docx(file)
+            st.success("DOCX parsed successfully.")
 
     else:
+        resume_text = st.text_area("Paste your resume here", height=300)
 
-        resume_text = st.text_area(
-            "Paste Resume",
-            height=300
-        )
+    job_desc = st.text_area("Paste the Job Description here", height=200)
 
-    job_desc = st.text_area(
-        "Paste Job Description",
-        height=200
-    )
-
-    if st.button("Analyze Resume"):
-
-        if resume_text:
-
-            # ---- Local ATS scoring ----
-            with st.spinner("Calculating ATS score..."):
-                score, missing = calculate_ats_score(
-                    resume_text,
-                    job_desc
-                )
-
-            st.subheader(f"ATS Score: {score}%")
-
-            if missing:
-                st.write("### Missing Keywords")
-                st.write(", ".join(missing))
-
-            # ---- AI suggestions ----
-            with st.spinner("Generating AI suggestions..."):
-                result = ats_check(
-                    resume_text,
-                    job_desc
-                )
-
-            st.markdown(result)
-
+    if st.button("🔍 Analyze Resume", type="primary"):
+        if not resume_text.strip():
+            st.warning("Please upload or paste your resume first.")
+        elif not job_desc.strip():
+            st.warning("Please paste a job description to compare against.")
         else:
-            st.warning("Upload or paste a resume first.")
+            col1, col2 = st.columns([1, 2])
+
+            with col1:
+                with st.spinner("Calculating ATS score..."):
+                    score, missing = calculate_ats_score(resume_text, job_desc)
+                st.metric("ATS Score", f"{score}%")
+                if missing:
+                    st.markdown("**Missing Keywords:**")
+                    st.write(", ".join(missing[:30]))  # cap at 30
+
+            with col2:
+                with st.spinner("Getting AI analysis from Gemini..."):
+                    result = ats_check(resume_text, job_desc)
+                if result:
+                    st.markdown(result)
 
 
-# ---------------- RESUME BUILDER ---------------- #
+# ─────────────────────── RESUME BUILDER ─────────────────────── #
 
 with tab2:
+    st.subheader("AI Resume Builder")
+    st.caption("Fill in your details and Gemini will write a professional resume for you.")
 
-    st.subheader("Build Resume")
+    col1, col2 = st.columns(2)
 
-    name = st.text_input("Name")
+    with col1:
+        name = st.text_input("Full Name")
+        skills = st.text_input("Skills (comma separated)")
+        certs = st.text_input("Certifications")
 
-    education = st.text_area("Education")
+    with col2:
+        education = st.text_area("Education", height=100)
+        projects = st.text_area("Projects", height=100)
 
-    experience = st.text_area("Experience")
+    experience = st.text_area("Work Experience", height=150)
 
-    skills = st.text_input("Skills")
-
-    projects = st.text_area("Projects")
-
-    certs = st.text_input("Certifications")
-
-    if st.button("Generate Resume"):
-
-        with st.spinner("Generating..."):
-
-            resume = build_resume(
-                name,
-                education,
-                experience,
-                skills,
-                projects,
-                certs
-            )
-
-        st.markdown(resume)
+    if st.button("🚀 Generate Resume", type="primary"):
+        if not name.strip():
+            st.warning("Please enter your name.")
+        else:
+            with st.spinner("Gemini is building your resume..."):
+                resume = build_resume(name, education, experience, skills, projects, certs)
+            if resume:
+                st.markdown("---")
+                st.markdown(resume)
+                st.download_button(
+                    "⬇️ Download as Markdown",
+                    data=resume,
+                    file_name=f"{name.replace(' ', '_')}_resume.md",
+                    mime="text/markdown"
+                )
 
 
-# ---------------- RESUME IMPROVER ---------------- #
+# ─────────────────────── RESUME IMPROVER ─────────────────────── #
 
 with tab3:
+    st.subheader("Resume Improver")
+    st.caption("Paste your existing resume and Gemini will rewrite it to be ATS optimized.")
 
-    text = st.text_area(
-        "Paste Resume Section",
-        height=300
-    )
+    text = st.text_area("Paste your resume here", height=350)
 
-    if st.button("Improve Resume"):
+    if st.button("✨ Improve Resume", type="primary"):
+        if not text.strip():
+            st.warning("Please paste your resume first.")
+        else:
+            with st.spinner("Gemini is improving your resume..."):
+                result = improve_resume(text)
+            if result:
+                st.markdown("---")
+                st.markdown(result)
+                st.download_button(
+                    "⬇️ Download Improved Resume",
+                    data=result,
+                    file_name="improved_resume.md",
+                    mime="text/markdown"
+                )
 
-        with st.spinner("Improving..."):
 
-            result = improve_resume(text)
-
-        st.markdown(result)
-
-
-# ---------------- TIPS ---------------- #
+# ─────────────────────── TIPS ─────────────────────── #
 
 with tab4:
+    st.subheader("Resume Tips")
 
     tips()
+
+    st.markdown("---")
+    st.markdown("### Get Role-Specific Tips from AI")
+    role = st.text_input("Enter your target job title (e.g. Software Engineer, Data Analyst)")
+
+    if st.button("💡 Get AI Tips", type="primary"):
+        if not role.strip():
+            st.warning("Enter a job title first.")
+        else:
+            with st.spinner("Getting tips from Gemini..."):
+                ai_tips = get_role_tips(role)
+            if ai_tips:
+                st.markdown(ai_tips)
