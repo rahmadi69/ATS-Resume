@@ -50,7 +50,7 @@ with tab1:
             st.warning("Please upload or paste your resume first.")
         elif not job_desc.strip():
             st.warning("Please paste a job description to compare against.")
-                else:
+      else:
             with st.spinner("Analyzing with Groq AI..."):
                 result = ats_check(resume_text, job_desc)
             if result:
