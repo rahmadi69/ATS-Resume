@@ -1,4 +1,5 @@
 import os
+import time
 import streamlit as st
 from groq import Groq
 from prompts import (
@@ -18,22 +19,49 @@ def get_api_key():
     return os.getenv("GROQ_API_KEY", "")
 
 
-def _call_groq(prompt: str, max_tokens: int = 2048) -> str:
+def _call_groq(prompt: str, max_tokens: int = 2048, retries: int = 3) -> str:
+    """Call Groq API with automatic retry on 429 rate limit errors."""
     api_key = get_api_key()
     if not api_key:
         st.error("⚠️ Groq API key missing. Add GROQ_API_KEY to Streamlit Secrets.")
         st.stop()
-    try:
-        client = Groq(api_key=api_key)
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        st.error(f"Groq API error: {e}")
-        return ""
+
+    client = Groq(api_key=api_key)
+
+    for attempt in range(retries):
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=max_tokens
+            )
+            return response.choices[0].message.content
+
+        except Exception as e:
+            error_str = str(e)
+
+            # Rate limit hit — wait and retry
+            if "429" in error_str or "rate_limit" in error_str.lower() or "RATE_LIMIT" in error_str:
+                if attempt < retries - 1:
+                    wait_time = 20 * (attempt + 1)  # 20s, 40s, 60s
+                    with st.warning(
+                        f"⏳ Too many requests. Retrying in {wait_time} seconds... "
+                        f"(Attempt {attempt + 1}/{retries})"
+                    ):
+                        time.sleep(wait_time)
+                    continue
+                else:
+                    st.error(
+                        "⚠️ The AI service is currently busy due to high traffic. "
+                        "Please wait 1-2 minutes and try again."
+                    )
+                    return ""
+
+            # Any other error
+            st.error(f"⚠️ Something went wrong: {error_str[:200]}")
+            return ""
+
+    return ""
 
 
 def ats_check(resume: str, job: str) -> str:
