@@ -13,7 +13,7 @@ def ats_check(resume, job):
     )
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash",
         contents=prompt
     )
 
@@ -25,7 +25,7 @@ def improve_resume(text):
     prompt = IMPROVE_PROMPT.format(resume=text)
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash",
         contents=prompt
     )
 
@@ -44,7 +44,7 @@ def build_resume(name, education, exp, skills, projects, certs):
     )
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash",
         contents=prompt
     )
 
